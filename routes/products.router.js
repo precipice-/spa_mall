@@ -1,8 +1,9 @@
 const express = require("express"); // express라이브러리를 express 변수에 할당
 const router = express.Router(); // 다시 express.Router()라는 함수를 실행시켜 router이라는 변수에 할당
 
+/*
 const Cart = require("../schemas/cart.js");
-const Goods = require("../schemas/goods.js");
+const Goods = require("../schemas/products.schema.js");
 
 router.get("/goods/cart", async (req, res) => {
   const carts = await Cart.find({});
@@ -92,3 +93,4 @@ router.get("/goods", (req, res) => {
   res.json({ goods: goods });
 });
 module.exports = router;
+*/

@@ -1,96 +1,114 @@
 const express = require("express"); // express라이브러리를 express 변수에 할당
 const router = express.Router(); // 다시 express.Router()라는 함수를 실행시켜 router이라는 변수에 할당
 
-/*
-const Cart = require("../schemas/cart.js");
-const Goods = require("../schemas/products.schema.js");
+const products = require("../schemas/products.schema.js");
 
-router.get("/goods/cart", async (req, res) => {
-  const carts = await Cart.find({});
+// 상품 등록
+router.post("/products", async (req, res) => {
+  //const { goodsId } = req.params;
+  const { title, content, author, password } = req.body;
+  const product = await products.find({}).sort({ id: -1 });
+  const goodsID = product.length === 0 ? 1 : Number(product[product.length].id) + 1;
 
-  const goodsIds = carts.map((cart) => {
-    return cart.goodsId;
-  });
-
-  const goods = await Goods.find({ goodsId: goodsIds });
-
-  const results = carts.map((cart) => {
-    return {
-      quantity: cart.quantity,
-      goods: goods.find((item) => item.goodsId === cart.goodsId)
-    };
-  });
-  res.json({
-    carts: results
-  });
-});
-
-router.post("/goods/:goodsId/cart", async (req, res) => {
-  const { goodsId } = req.params;
-  const { quantity } = req.body;
-
-  const existsCarts = await Cart.find({ goodsId });
-  if (existsCarts.length) {
-    return res.status(400).json({
-      success: false,
-      errorMessage: "이미 장바구니에 상품이 존재합니다."
+  try {
+    await products.create({
+      title,
+      content,
+      author,
+      password,
+      goodsId: goodsID,
+      status: FOR_SALE,
+      createdDate: new Date()
     });
+    res.json({ message: "판매 상품을 등록하였습니다." });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "데이터 형식이 올바르지 않습니다." });
   }
-
-  await Cart.create({ goodsId, quantity });
-
-  res.json({ result: "success" });
 });
 
-router.post("/goods", async (req, res) => {
-  const { goodsId, name, thumbnailUrl, category, price } = req.body;
-
-  const goods = await Goods.find({ goodsId });
-  if (goods.length) {
-    return res.status(400).json({ success: false, errorMessage: "이미 있는 데이터입니다." });
-  }
-
-  const createdGoods = await Goods.create({
-    goodsId,
-    name,
-    thumbnailUrl,
-    category,
-    price
-  });
-
-  res.json({ goods: createdGoods });
+// 상품 목록 조회
+router.get("/products", async (req, res) => {
+  const product = await products.find({}).sort({ id: -1 });
+  res.json({ data: product });
 });
 
-router.put("/goods/:goodsId/cart", async (req, res) => {
-  const { goodsId } = req.params;
-  const { quantity } = req.body;
+// 상품 상세 조회
+router.get("/products/:productId", async (req, res) => {
+  const { productId } = req.params;
 
-  if (quantity < 1) {
-    res.status(400).json({ errorMessage: "수량은 1 이상이어야 합니다." });
-    return;
+  try {
+    const product = await products.find({ id: productId });
+    const result = product.map((data) => {
+      return {
+        goodsID: data.goodsId,
+        title: data.title,
+        content: data.content,
+        author: data.author,
+        status: data.status,
+        createdDate: data.createdDate
+      };
+    });
+    res.json({ data: result });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "데이터 형식이 올바르지 않습니다." });
   }
-
-  const existsCarts = await Cart.find({ goodsId: Number(goodsId) });
-  if (existsCarts.length) {
-    await Cart.updateOne({ goodsId: Number(goodsId) }, { $set: { quantity } });
-  }
-
-  res.status(200).json({ success: true });
 });
 
-router.delete("/goods/:goodsId/cart", async (req, res) => {
-  const { goodsId } = req.params;
+// 상품 정보 수정
+router.put("/products/:productId", async (req, res) => {
+  const { productId } = req.params;
+  const { title, contents, password, status } = req.body;
 
-  const existsCarts = await Cart.find({ goodsId });
-  if (existsCarts.length) {
-    await Cart.deleteOne({ goodsId });
+  const existsProduct = await products.find({ id: productId });
+  console.log(existsProduct);
+  try {
+    if (existsProduct.length) {
+      if (existsProduct[0].password == password) {
+        await products.updateOne({
+          id: productId,
+          $set: {
+            title,
+            content,
+            status
+          }
+        });
+        res.json({ message: "상품정보를 수정하였습니다." });
+      } else {
+        res.status(401).json({ message: "상품을 삭제할 권한이 존재하지 않습니다." });
+      }
+    } else {
+      res.status(404).json({ message: "상품 조회에 실패하였습니다." });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "데이터 형식이 올바르지 않습니다." });
   }
-  res.json({ result: "success" });
 });
 
-//상품 목록 조회 API
-router.get("/goods", (req, res) => {
-  res.json({ goods: goods });
+// 상품 삭제
+router.delete("/products/:productId", async (req, res) => {
+  const { productId } = req.params;
+  const { password } = req.body;
+
+  const existsProduct = await products.find({ id: productId });
+  console.log(existsProduct);
+  try {
+    if (existsProduct.length) {
+      if (existsProduct[0].password == password) {
+        await products.deleteOne({ id: productId });
+        res.json({ result: "success" });
+      } else {
+        res.status(401).json({ message: "상품을 삭제할 권한이 존재하지 않습니다." });
+      }
+    } else {
+      res.status(404).json({ message: "상품 조회에 실패하였습니다." });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "데이터 형식이 올바르지 않습니다." });
+  }
 });
+
 module.exports = router;
-*/

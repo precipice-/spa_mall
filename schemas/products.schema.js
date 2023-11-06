@@ -2,23 +2,40 @@ const mongoose = require("mongoose");
 
 const goodsSchema = new mongoose.Schema({
   goodsId: {
+    //상품 번호
     type: Number,
     required: true,
     unique: true
   },
-  name: {
+  goodsName: {
+    //상품명
+    type: Number,
+    required: true
+  },
+  contents: {
+    //작성 내용
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
-  thumbnailUrl: {
-    type: String
+  author: {
+    //작성자명
+    type: String,
+    required: true
   },
-  category: {
-    type: String
+  status: {
+    //상태
+    type: String,
+    required: true
   },
-  price: {
-    type: Number
+  password: {
+    //비밀번호
+    type: String,
+    required: true
+  },
+  createdDate: {
+    //작성 날짜
+    type: Date,
+    required: true
   }
 });
 

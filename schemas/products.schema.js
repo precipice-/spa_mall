@@ -7,12 +7,12 @@ const goodsSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  goodsName: {
+  title: {
     //상품명
     type: Number,
     required: true
   },
-  contents: {
+  content: {
     //작성 내용
     type: String,
     required: true

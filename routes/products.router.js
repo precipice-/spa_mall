@@ -17,7 +17,7 @@ router.post("/products", async (req, res) => {
       author,
       password,
       goodsId: goodsID,
-      status: FOR_SALE,
+      status: "FOR_SALE",
       createdDate: new Date()
     });
     res.json({ message: "판매 상품을 등록하였습니다." });

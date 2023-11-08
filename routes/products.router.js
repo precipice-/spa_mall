@@ -5,7 +5,6 @@ const products = require("../schemas/products.schema.js");
 
 // 상품 등록
 router.post("/products", async (req, res) => {
-  //const { goodsId } = req.params;
   const { title, content, author, password } = req.body;
   const product = await products.find({}).sort({ id: -1 });
   const goodsID = product.length === 0 ? 1 : Number(product[product.length].id) + 1;
@@ -59,7 +58,7 @@ router.get("/products/:productId", async (req, res) => {
 // 상품 정보 수정
 router.put("/products/:productId", async (req, res) => {
   const { productId } = req.params;
-  const { title, contents, password, status } = req.body;
+  const { title, content, password, status } = req.body;
 
   const existsProduct = await products.find({ id: productId });
   console.log(existsProduct);

@@ -2,12 +2,6 @@ const mongoose = require("mongoose");
 
 const goodsSchema = new mongoose.Schema(
   {
-    _id: {
-      //상품 번호
-      type: Number,
-      required: true,
-      unique: true
-    },
     title: {
       //상품명
       type: Number,
@@ -23,19 +17,19 @@ const goodsSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    password: {
+      //비밀번호
+      type: String,
+      required: true
+    },
     status: {
       //상태
       type: String,
       enum: ["FOR_SALE", "SOLD_OUT"],
       default: "FOR_SALE"
-    },
-    password: {
-      //비밀번호
-      type: String,
-      required: true
     }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Goods", goodsSchema);
+module.exports = mongoose.model("Product", goodsSchema);
